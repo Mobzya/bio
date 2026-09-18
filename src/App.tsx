@@ -14,6 +14,7 @@ import Experience from "./components/Experience";
 import BuildIntro from "./components/BuildIntro";
 import InterestVisual from "./components/InterestVisual";
 import Gallery from "./components/Gallery";
+import TypedText from "./components/TypedText";
 
 const navigation = [
   { id: "experience", label: "Опыт" },
@@ -107,28 +108,28 @@ export default function App() {
           <div className="hero-inner container">
             <div className="hero-copy">
               <div className="hero-eyebrow mono">
-                <span className="status-dot" /> НА ПЕРЕСЕЧЕНИИ МАТЕМАТИКИ И КОДА
+                <span className="status-dot" /> <TypedText>НА ПЕРЕСЕЧЕНИИ МАТЕМАТИКИ И КОДА</TypedText>
               </div>
               <h1>
-                {profile.name}
+                <TypedText>{profile.name}</TypedText>
                 <span className="hero-period">.</span>
               </h1>
               <div className="hero-roles mono">
                 {profile.roles.map((role, index) => (
                   <span key={role}>
                     {index > 0 && <i>/</i>}
-                    {role}
+                    <TypedText>{role}</TypedText>
                   </span>
                 ))}
               </div>
               <p className="hero-statement">
-                Сложные идеи.
+                <TypedText>Сложные идеи.</TypedText>
                 <br />
-                <span>Осмысленные решения.</span>
+                <span><TypedText>Осмысленные решения.</TypedText></span>
               </p>
-              <p className="hero-about">{profile.about}</p>
+              <p className="hero-about"><TypedText>{profile.about}</TypedText></p>
               <a href="#experience" className="hero-link">
-                Познакомимся ближе <ArrowDownRight size={20} />
+                <TypedText>Познакомимся ближе</TypedText> <ArrowDownRight size={20} />
               </a>
             </div>
             <Manifold />
@@ -159,8 +160,8 @@ export default function App() {
           </div>
           <div className="section-heading">
             <div>
-              <h2>То, что движет мной</h2>
-              <p>Разные языки. Одно любопытство.</p>
+              <h2><TypedText>То, что движет мной</TypedText></h2>
+              <p><TypedText>Разные языки. Одно любопытство.</TypedText></p>
             </div>
             <span className="interest-equation mono">f(math, cs, ml) → me</span>
           </div>
@@ -191,8 +192,8 @@ export default function App() {
                   <span className="interest-formula mono">{item.formula}</span>
                 </div>
                 <div className="interest-copy">
-                  <h3>{item.title}</h3>
-                  <span className="interest-subtitle">{item.subtitle}</span>
+                  <h3><TypedText>{item.title}</TypedText></h3>
+                  <span className="interest-subtitle"><TypedText>{item.subtitle}</TypedText></span>
                   <p className="interest-description">{item.description}</p>
                   <div className="interest-tags mono">
                     {item.tags.map((tag) => (
@@ -211,8 +212,8 @@ export default function App() {
           <div>
             <span className="mono dim">THE NEXT ITERATION</span>
             <p>
-              Всё начинается
-              <br />с хорошего вопроса<span>.</span>
+              <TypedText>Всё начинается</TypedText>
+              <br /><TypedText>с хорошего вопроса</TypedText><span>.</span>
             </p>
           </div>
           <a
@@ -221,7 +222,7 @@ export default function App() {
             rel="noreferrer"
             className="footer-contact"
           >
-            <span>Telegram · @{profile.telegram}</span>
+            <span><TypedText>{`Telegram · @${profile.telegram}`}</TypedText></span>
             <ArrowUpRight size={24} />
           </a>
         </div>

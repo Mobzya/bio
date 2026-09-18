@@ -12,6 +12,7 @@ import {
 import { fetchGithubStats, type GithubStats } from "../lib/github";
 import { profile } from "../data";
 import Dialog from "./Dialog";
+import TypedText from "./TypedText";
 
 export default function Experience() {
   const [data, setData] = useState<GithubStats | null>(null);
@@ -121,8 +122,8 @@ export default function Experience() {
       </div>
       <div className="section-heading">
         <div>
-          <h2>Мой опыт</h2>
-          <p>Код говорит больше, чем резюме.</p>
+          <h2><TypedText>Мой опыт</TypedText></h2>
+          <p><TypedText>Код говорит больше, чем резюме.</TypedText></p>
         </div>
         <div className="social-links">
           <a
@@ -170,7 +171,7 @@ export default function Experience() {
             alt="Аватар Mobzya на GitHub"
           />
           <div>
-            <strong>@{profile.github}</strong>
+            <strong><TypedText>{`@${profile.github}`}</TypedText></strong>
             <span>
               Building in public<span className="identity-divider">/</span>
               {data ? `с ${new Date(data.created_at).getFullYear()}` : "GitHub"}
@@ -230,10 +231,10 @@ export default function Experience() {
           <div className="stat" key={stat.name}>
             <span className="stat-label">
               {stat.icon}
-              {stat.name}
+              <TypedText>{stat.name}</TypedText>
             </span>
             <strong className={stat.value === undefined ? "skeleton-text" : ""}>
-              {stat.value ?? "—"}
+              <TypedText>{String(stat.value ?? "—")}</TypedText>
             </strong>
           </div>
         ))}
@@ -241,7 +242,7 @@ export default function Experience() {
       <div className="stack-layout">
         <div className="languages-block">
           <div className="block-heading">
-            <h3>Языки</h3>
+            <h3><TypedText>Языки</TypedText></h3>
             <span className="mono dim">СОСТАВ КОДА</span>
           </div>
           <div className="language-stack">
@@ -278,7 +279,7 @@ export default function Experience() {
                       ][Math.min(index, 4)],
                     }}
                   />
-                  {language.name}
+                  <TypedText>{language.name}</TypedText>
                 </span>
                 <span className="mono">
                   {language.percent.toFixed(1)}
@@ -301,7 +302,7 @@ export default function Experience() {
         </div>
         <div className="frameworks-block">
           <div className="block-heading">
-            <h3>Инструменты и фреймворки</h3>
+            <h3><TypedText>Инструменты и фреймворки</TypedText></h3>
             <span className="mono dim">STACK</span>
           </div>
           <div className="framework-list">
@@ -309,7 +310,7 @@ export default function Experience() {
               <div key={framework.name}>
                 <span>
                   <Boxes size={15} />
-                  {framework.name}
+                  <TypedText>{framework.name}</TypedText>
                 </span>
                 <span className="framework-meter" aria-hidden="true">
                   {Array.from({ length: data.repos.length }, (_, i) => (
@@ -353,7 +354,7 @@ export default function Experience() {
           >
             <span className="mono repo-number">0{index + 1}</span>
             <div>
-              <h4>{repo.name}</h4>
+              <h4><TypedText>{repo.name}</TypedText></h4>
               <p>{repo.description || "Открытый проект / Mobzya"}</p>
             </div>
             <span className="mono repo-language">{repo.language}</span>

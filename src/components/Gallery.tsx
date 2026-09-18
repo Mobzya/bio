@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Expand, Moon, Palette } from "lucide-react";
 import { photos } from "../data";
 import Dialog from "./Dialog";
+import TypedText from "./TypedText";
 
 function shuffledPhotos() {
   const sequence = [...photos];
@@ -72,7 +73,7 @@ export default function Gallery() {
         lightbox === null &&
         !motion.matches &&
         (!document.documentElement.hasAttribute("data-building") ||
-          first.firstElementChild?.hasAttribute("data-build-revealed")) &&
+          element.hasAttribute("data-build-revealed")) &&
         width > 0
       ) {
         // Fixed speed; input never changes the position or the playback rate.
@@ -109,8 +110,8 @@ export default function Gallery() {
         </div>
         <div className="section-heading">
           <div>
-            <h2>Между строк.</h2>
-            <p>Моменты, в которых хочется остаться.</p>
+            <h2><TypedText>Между строк.</TypedText></h2>
+            <p><TypedText>Моменты, в которых хочется остаться.</TypedText></p>
           </div>
           <div className="gallery-tools">
             <div className="segmented" aria-label="Цвет фотографий">

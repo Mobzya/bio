@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Terminal } from "lucide-react";
 import { photos } from "../data";
-import { createBuildTimeline } from "../lib/build-intro";
+import { BUILD_TICK, createBuildTimeline } from "../lib/build-intro";
 
 const { commands, duration } = createBuildTimeline(photos.length);
 
@@ -13,7 +13,9 @@ export default function BuildIntro() {
     const root = document.documentElement;
     const items = new Map<HTMLElement, number>();
     let completed = -1;
+    let elapsedTime = 0;
     const reveal = (element: HTMLElement) => {
+      element.dataset.buildStart = String(elapsedTime + Number(element.dataset.buildDelay));
       element.dataset.buildRevealed = "true";
     };
     // API rows can arrive after their command. They inherit the current build state.
@@ -24,6 +26,13 @@ export default function BuildIntro() {
             if (items.has(element)) return;
             items.set(element, index);
             element.dataset.buildStep = String(index);
+            const delay = Math.round(Math.random() * 170);
+            element.dataset.buildDelay = String(delay);
+            element.style.setProperty("--build-delay", `${delay}ms`);
+            element.style.setProperty("--build-duration", `${1000 + Math.round(Math.random() * 650)}ms`);
+            element.style.setProperty("--build-x", `${Math.round(Math.random() * 44 - 22)}px`);
+            element.style.setProperty("--build-y", `${Math.round(Math.random() * 44 - 22)}px`);
+            element.style.setProperty("--build-rotation", `${(Math.random() * 2 - 1).toFixed(2)}deg`);
             if (index <= completed) reveal(element);
           });
         }
@@ -36,6 +45,11 @@ export default function BuildIntro() {
       for (const element of items.keys()) {
         element.removeAttribute("data-build-step");
         element.removeAttribute("data-build-revealed");
+        element.removeAttribute("data-build-start");
+        element.removeAttribute("data-build-delay");
+        for (const property of ["delay", "duration", "x", "y", "rotation"]) {
+          element.style.removeProperty(`--build-${property}`);
+        }
       }
     };
     bind();
@@ -49,7 +63,6 @@ export default function BuildIntro() {
     const main = document.querySelector("main");
     if (main) observer.observe(main, { childList: true, subtree: true });
     let previous = performance.now();
-    let elapsedTime = 0;
     let frame = 0;
     let lastUpdate = -50;
     const tick = (now: number) => {
@@ -77,6 +90,7 @@ export default function BuildIntro() {
             if (step === completed) reveal(element);
           }
         }
+        document.dispatchEvent(new CustomEvent(BUILD_TICK, { detail: time }));
         setElapsed(time);
       }
       if (time < duration) frame = requestAnimationFrame(tick);

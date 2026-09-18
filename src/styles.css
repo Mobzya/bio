@@ -326,7 +326,7 @@ img {
   color: #aaa;
   margin-top: 17px;
 }
-.hero-roles span {
+.hero-roles > span {
   display: inline-flex;
   gap: 15px;
   align-items: center;
@@ -341,7 +341,7 @@ img {
   font-weight: 500;
   margin-top: 38px;
 }
-.hero-statement span {
+.hero-statement > span:not(.typed-text) {
   color: #8d8d8d;
 }
 .hero-about {
@@ -1128,7 +1128,7 @@ img {
   line-height: 1.4;
   margin-top: 18px;
 }
-.footer-top p > span {
+.footer-top p > span:not(.typed-text) {
   color: #777;
 }
 .footer-contact {
@@ -1403,7 +1403,7 @@ img {
     font-size: 8px;
     gap: 9px;
   }
-  .hero-roles span {
+  .hero-roles > span {
     gap: 9px;
   }
   .manifold {
@@ -1550,7 +1550,7 @@ img {
     gap: 9px;
     margin-top: 14px;
   }
-  .hero-roles span {
+  .hero-roles > span {
     gap: 9px;
   }
   .hero-statement {
@@ -1922,7 +1922,7 @@ img {
     font-size: 7px;
     gap: 7px;
   }
-  .hero-roles span {
+  .hero-roles > span {
     gap: 7px;
   }
   .hero-eyebrow {
@@ -2013,12 +2013,42 @@ img {
     padding-top: 36px;
   }
 }
+.typed-text {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: bottom;
+}
+.typed-text-reserve {
+  display: block;
+}
+.typed-text-ink {
+  display: none;
+  position: absolute;
+  inset: 0;
+}
+html[data-building="active"] .typed-text-reserve {
+  opacity: 0;
+}
+html[data-building="active"] .typed-text-ink {
+  display: block;
+}
+.typed-text-ink.typing::after {
+  content: "";
+  display: inline-block;
+  width: 1px;
+  height: 0.8em;
+  margin-left: 2px;
+  background: currentColor;
+  opacity: 0.5;
+  animation: breathe 0.8s ease-in-out infinite;
+}
 /* Construction changes paint and transforms only; the document stays in place. */
 html[data-building="active"],
 html[data-building="active"] body {
   background: var(--build-surface, #fff);
   color: var(--build-ink, #181818);
-  transition: background-color 0.16s, color 0.16s;
+  transition: background-color 1.6s ease, color 1.6s ease;
 }
 html[data-building] body {
   overflow-x: clip;
@@ -2026,6 +2056,7 @@ html[data-building] body {
 }
 html[data-building="active"] :is(.header, .interest-card, .navigation.open) {
   background: var(--build-surface, #fff);
+  transition: background-color 1.6s ease;
 }
 html[data-building="active"]
   :is(.section, .github-profile, .stats-row, .repo-list, .footer):not(
@@ -2043,15 +2074,8 @@ html[data-building="active"] [data-build-step] {
 }
 html[data-building="active"] [data-build-revealed] {
   visibility: visible;
-  animation: build-fragment 0.28s steps(2, end) both;
-}
-html[data-building="active"] .hero h1 {
-  --build-x: 30px;
-  --build-y: 18px;
-}
-html[data-building="active"] .hero-roles > span:nth-child(2) {
-  --build-x: -18px;
-  --build-y: 12px;
+  animation: build-fragment var(--build-duration, 1300ms)
+    cubic-bezier(0.22, 0.7, 0.2, 1) var(--build-delay, 0ms) both;
 }
 html[data-building="active"] .interest-card[data-build-revealed] {
   animation-name: build-tile;
@@ -2059,17 +2083,17 @@ html[data-building="active"] .interest-card[data-build-revealed] {
 html[data-building="active"] .manifold[data-build-revealed] {
   animation-name: build-structure;
 }
-html[data-building="active"] .photo[data-build-revealed] {
-  animation: build-photo 0.22s steps(2, end) both;
-}
-html[data-building="active"] .photo:nth-child(even) {
-  --build-y: 24px;
-  --build-rotation: -3deg;
+html[data-building="active"] .gallery-track[data-build-revealed] {
+  animation-name: build-carousel;
 }
 @keyframes build-fragment {
   0% {
-    opacity: 0.65;
-    transform: translate(var(--build-x, -14px), var(--build-y, 12px));
+    opacity: 0;
+    transform: translate(var(--build-x), var(--build-y)) rotate(var(--build-rotation));
+  }
+  65% {
+    opacity: 1;
+    transform: translate(calc(var(--build-x) * -0.08), calc(var(--build-y) * -0.08));
   }
   100% {
     opacity: 1;
@@ -2078,20 +2102,22 @@ html[data-building="active"] .photo:nth-child(even) {
 }
 @keyframes build-structure {
   0% {
-    opacity: 0.65;
-    transform: translate(-24px, 18px) scale(0.95);
-    filter: invert(1);
+    opacity: 0;
+    transform: translate(var(--build-x), var(--build-y)) scale(0.94);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(2px, -2px) scale(1.005);
   }
   100% {
     opacity: 1;
     transform: none;
-    filter: none;
   }
 }
 @keyframes build-tile {
   from {
-    opacity: 0.65;
-    transform: translate(-12px, -18px) rotate(-2deg);
+    opacity: 0;
+    transform: translate(var(--build-x), var(--build-y)) rotate(var(--build-rotation)) scale(0.97);
     border-color: #bbb;
   }
   to {
@@ -2100,17 +2126,18 @@ html[data-building="active"] .photo:nth-child(even) {
     border-color: #292929;
   }
 }
-@keyframes build-photo {
+@keyframes build-carousel {
   0% {
-    opacity: 0.65;
-    transform: translateY(var(--build-y, -24px))
-      rotate(var(--build-rotation, 3deg)) scale(0.95);
-    filter: hue-rotate(65deg) saturate(0.4);
+    opacity: 0;
+    transform: translateY(24px) scale(0.985);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1);
   }
   100% {
     opacity: 1;
     transform: none;
-    filter: none;
   }
 }
 .build-terminal {

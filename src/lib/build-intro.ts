@@ -7,25 +7,47 @@ export interface BuildCommand {
   surface?: number;
 }
 
-export function createBuildTimeline(photoCount: number) {
+export const BUILD_TICK = "mobzya:build-tick";
+
+export function createTypingSchedule(text: string) {
+  let cursor = 0;
+  const schedule = Array.from(text, (character, index) => {
+    cursor += 22 + ((character.codePointAt(0)! + index * 7) % 19);
+    const at = cursor;
+    if (/[.,:;!?]/.test(character)) cursor += 95;
+    else if (/\s/.test(character)) cursor += 18;
+    return at;
+  });
+  const scale = Math.min(1, 3000 / Math.max(cursor, 1));
+  return schedule.map((at) => at * scale);
+}
+
+export function typedLengthAt(schedule: number[], elapsed: number) {
+  let count = 0;
+  while (count < schedule.length && elapsed >= schedule[count]) count++;
+  return count;
+}
+
+export function createBuildTimeline(photoCount: number, random = Math.random) {
   const commands: BuildCommand[] = [];
   let cursor = 700;
   const add = (
     text: string,
     output: string,
     targets: string[],
-    interval = 850,
+    interval = 1000,
     surface?: number,
   ) => {
+    const time = 460 + Math.round(random() * 180);
     commands.push({
       at: cursor,
-      time: interval === 520 ? 260 : 440,
+      time,
       text,
       output,
       targets,
       surface,
     });
-    cursor += interval;
+    cursor += Math.max(time + 160, interval + Math.round(random() * 300));
   };
 
   add("workspace.init Mobzya", "identity / navigation", [".header", ".brand"]);
@@ -50,8 +72,8 @@ export function createBuildTimeline(photoCount: number) {
     ".manifold",
     ".hero-bottom",
   ]);
-  add("theme.set --surface #a0a0a0", "palette / intermediate", [], 850, 160);
-  add("theme.set --surface #080808", "palette / monochrome", [], 850, 8);
+  add("theme.set --surface #a0a0a0", "palette / intermediate", [], 1000, 160);
+  add("theme.set --surface #080808", "palette / monochrome", [], 1000, 8);
   add("experience.write --heading", "theory / practice", [
     "#experience .section-kicker",
     "#experience .section-heading > div:first-child",
@@ -117,19 +139,9 @@ export function createBuildTimeline(photoCount: number) {
     ".gallery-tools",
     ".gallery-bottom",
   ]);
-  for (let i = 1; i <= photoCount; i += 2) {
-    const last = Math.min(i + 1, photoCount);
-    const range = `${String(i).padStart(2, "0")}..${String(last).padStart(2, "0")}`;
-    add(
-      `moments.mount ${range}`,
-      `${last} / ${photoCount} frames placed`,
-      Array.from(
-        { length: last - i + 1 },
-        (_, offset) => `.gallery-group > .photo:nth-child(${i + offset})`,
-      ),
-      520,
-    );
-  }
+  add("moments.mount --carousel", `${photoCount} frames / one continuous strip`, [
+    ".gallery-track",
+  ], 1500);
   add("contact.write --telegram Mobzi_t", "the next iteration", [
     ".footer-top > div",
     ".footer-contact",
@@ -137,5 +149,5 @@ export function createBuildTimeline(photoCount: number) {
   add("footer.write --signature", "human behind the model", [".footer-bottom"]);
   add("site.ready --preserve-viewport", "✓ build complete / viewport unchanged", []);
 
-  return { commands, duration: cursor + 650 };
+  return { commands, duration: cursor + 1800 };
 }
