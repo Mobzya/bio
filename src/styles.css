@@ -2018,6 +2018,7 @@ html[data-building="active"],
 html[data-building="active"] body {
   background: var(--build-surface, #fff);
   color: var(--build-ink, #181818);
+  transition: background-color 0.16s, color 0.16s;
 }
 html[data-building] body {
   overflow-x: clip;
@@ -2027,150 +2028,84 @@ html[data-building="active"] :is(.header, .interest-card, .navigation.open) {
   background: var(--build-surface, #fff);
 }
 html[data-building="active"]
-  :is(.hero h1, .hero-link, .section-heading h2, .stat-value, .footer-contact) {
+  :is(.section, .github-profile, .stats-row, .repo-list, .footer):not(
+    :has([data-build-revealed])
+  ) {
+  border-color: transparent;
+}
+html[data-building="active"]
+  :is(.hero h1, .hero-link, .section-heading h2, .stat strong, .footer-contact) {
   color: var(--build-ink, #181818);
 }
-html[data-building="active"] .header {
-  animation: build-header 3s 2.8s both;
+html[data-building="active"] [data-build-step] {
+  visibility: hidden;
+  opacity: 0;
 }
-html[data-building="active"] .hero-copy > * {
-  animation: build-type 5s 2.2s both;
+html[data-building="active"] [data-build-revealed] {
+  visibility: visible;
+  animation: build-fragment 0.28s steps(2, end) both;
 }
-html[data-building="active"] .hero-copy h1 {
-  animation-delay: 1.6s;
-  --build-x: 85px;
-  --build-y: 50px;
+html[data-building="active"] .hero h1 {
+  --build-x: 30px;
+  --build-y: 18px;
 }
-html[data-building="active"] .hero-copy .hero-roles {
-  animation-delay: 2.7s;
-  --build-x: -45px;
-  --build-y: 35px;
+html[data-building="active"] .hero-roles > span:nth-child(2) {
+  --build-x: -18px;
+  --build-y: 12px;
 }
-html[data-building="active"] .hero-copy .hero-about,
-html[data-building="active"] .hero-copy .hero-link {
-  animation-delay: 3.5s;
+html[data-building="active"] .interest-card[data-build-revealed] {
+  animation-name: build-tile;
 }
-html[data-building="active"] .manifold {
-  animation: build-structure 6s 3.6s both;
+html[data-building="active"] .manifold[data-build-revealed] {
+  animation-name: build-structure;
 }
-html[data-building="active"] .hero-bottom {
-  animation: build-section 4s 4.4s both;
+html[data-building="active"] .photo[data-build-revealed] {
+  animation: build-photo 0.22s steps(2, end) both;
 }
-html[data-building="active"] #experience {
-  animation: build-section 5s 3.9s both;
+html[data-building="active"] .photo:nth-child(even) {
+  --build-y: 24px;
+  --build-rotation: -3deg;
 }
-html[data-building="active"] #interests {
-  animation: build-section 5s 5.4s both;
-}
-html[data-building="active"] #moments {
-  animation: build-section 5s 6.5s both;
-}
-html[data-building="active"] .footer {
-  animation: build-section 4s 8s both;
-}
-html[data-building="active"] .interest-card {
-  animation: build-tile 4s 6s both;
-}
-html[data-building="active"] .interest-card:nth-child(2) {
-  animation-delay: 6.4s;
-}
-html[data-building="active"] .interest-card:nth-child(3) {
-  animation-delay: 6.8s;
-}
-html[data-building="active"] .photo {
-  animation: build-photo 4s 7.5s both;
-}
-html[data-building="active"] .photo:nth-child(3n + 2) {
-  animation-delay: 8s;
-}
-html[data-building="active"] .photo:nth-child(3n) {
-  animation-delay: 8.5s;
-}
-@keyframes build-header {
-  from {
-    visibility: hidden;
-    opacity: 0;
-    transform: translateY(-28px);
-  }
-  to {
-    visibility: visible;
-    opacity: 1;
-    transform: none;
-  }
-}
-@keyframes build-type {
+@keyframes build-fragment {
   0% {
-    visibility: hidden;
-    opacity: 0;
-    transform: translate(var(--build-x, -35px), var(--build-y, 25px))
-      rotate(-3deg);
-    filter: blur(5px);
-  }
-  25% {
-    opacity: 0.85;
-    filter: blur(0);
-  }
-  70% {
-    transform: translate(5px, -4px) rotate(0.3deg);
+    opacity: 0.65;
+    transform: translate(var(--build-x, -14px), var(--build-y, 12px));
   }
   100% {
-    visibility: visible;
     opacity: 1;
     transform: none;
-    filter: none;
   }
 }
 @keyframes build-structure {
   0% {
-    visibility: hidden;
-    opacity: 0;
-    transform: translate(-70px, 35px) scale(0.8);
+    opacity: 0.65;
+    transform: translate(-24px, 18px) scale(0.95);
     filter: invert(1);
   }
-  40% {
-    opacity: 0.65;
-    filter: invert(0.6);
-  }
   100% {
-    visibility: visible;
     opacity: 1;
     transform: none;
     filter: none;
   }
 }
-@keyframes build-section {
-  0% {
-    visibility: hidden;
-    opacity: 0;
-    transform: translate(35px, -50px);
-  }
-  30% {
-    opacity: 0.7;
-  }
-  100% {
-    visibility: visible;
-    opacity: 1;
-    transform: none;
-  }
-}
 @keyframes build-tile {
   from {
-    transform: translate(-12px, -35px) rotate(-4deg);
+    opacity: 0.65;
+    transform: translate(-12px, -18px) rotate(-2deg);
     border-color: #bbb;
   }
   to {
+    opacity: 1;
     transform: none;
     border-color: #292929;
   }
 }
 @keyframes build-photo {
   0% {
-    opacity: 0;
-    transform: translateY(-55px) rotate(5deg) scale(0.88);
+    opacity: 0.65;
+    transform: translateY(var(--build-y, -24px))
+      rotate(var(--build-rotation, 3deg)) scale(0.95);
     filter: hue-rotate(65deg) saturate(0.4);
-  }
-  45% {
-    opacity: 1;
   }
   100% {
     opacity: 1;

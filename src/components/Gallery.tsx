@@ -71,6 +71,8 @@ export default function Gallery() {
         !document.hidden &&
         lightbox === null &&
         !motion.matches &&
+        (!document.documentElement.hasAttribute("data-building") ||
+          first.firstElementChild?.hasAttribute("data-build-revealed")) &&
         width > 0
       ) {
         // Fixed speed; input never changes the position or the playback rate.

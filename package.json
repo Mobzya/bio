@@ -9,7 +9,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "sync:github": "node scripts/sync-github.ts",
-    "test": "node --test scripts/github.test.ts"
+    "test": "node --test scripts/github.test.ts scripts/build-intro.test.ts"
   },
   "dependencies": {
     "lucide-react": "^0.577.0",

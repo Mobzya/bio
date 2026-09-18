@@ -1,57 +1,9 @@
 import { useEffect, useState } from "react";
 import { Terminal } from "lucide-react";
+import { photos } from "../data";
+import { createBuildTimeline } from "../lib/build-intro";
 
-const duration = 15_000;
-const commands = [
-  {
-    at: 700,
-    time: 850,
-    text: "mkdir mobzya && cd mobzya",
-    output: "workspace initialized",
-  },
-  {
-    at: 2300,
-    time: 900,
-    text: "identity.load --name Mobzya",
-    output: "ML engineer / AI engineering / DS",
-  },
-  {
-    at: 4100,
-    time: 950,
-    text: "github.connect --user Mobzya",
-    output: "public profile · repositories · languages",
-  },
-  {
-    at: 5900,
-    time: 950,
-    text: "theme.apply --palette monochrome",
-    output: "#ffffff → #080808",
-  },
-  {
-    at: 7800,
-    time: 900,
-    text: "layout.resolve --responsive",
-    output: "coordinates aligned · viewport preserved",
-  },
-  {
-    at: 9600,
-    time: 1000,
-    text: "moments.shuffle --color --flow slow",
-    output: "68 frames · infinite sequence",
-  },
-  {
-    at: 11600,
-    time: 950,
-    text: "motion.bind math cs ml",
-    output: "structures alive",
-  },
-  {
-    at: 13200,
-    time: 750,
-    text: "site.publish --ready",
-    output: "✓ Mobzya is online.",
-  },
-];
+const { commands, duration } = createBuildTimeline(photos.length);
 
 export default function BuildIntro() {
   const [elapsed, setElapsed] = useState(0);
@@ -59,39 +11,86 @@ export default function BuildIntro() {
 
   useEffect(() => {
     const root = document.documentElement;
+    const items = new Map<HTMLElement, number>();
+    let completed = -1;
+    const reveal = (element: HTMLElement) => {
+      element.dataset.buildRevealed = "true";
+    };
+    // API rows can arrive after their command. They inherit the current build state.
+    const bind = () => {
+      commands.forEach((command, index) => {
+        for (const selector of command.targets) {
+          document.querySelectorAll<HTMLElement>(selector).forEach((element) => {
+            if (items.has(element)) return;
+            items.set(element, index);
+            element.dataset.buildStep = String(index);
+            if (index <= completed) reveal(element);
+          });
+        }
+      });
+    };
+    const clear = () => {
+      root.removeAttribute("data-building");
+      root.style.removeProperty("--build-surface");
+      root.style.removeProperty("--build-ink");
+      for (const element of items.keys()) {
+        element.removeAttribute("data-build-step");
+        element.removeAttribute("data-build-revealed");
+      }
+    };
+    bind();
     root.dataset.building = "active";
-    const started = performance.now();
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      clear();
+      setFinished(true);
+      return;
+    }
+    const observer = new MutationObserver(bind);
+    const main = document.querySelector("main");
+    if (main) observer.observe(main, { childList: true, subtree: true });
+    let previous = performance.now();
+    let elapsedTime = 0;
     let frame = 0;
     let lastUpdate = -50;
     const tick = (now: number) => {
-      const time = Math.min(now - started, duration);
+      // Slow frames and background tabs must not collapse several build steps.
+      elapsedTime = Math.min(elapsedTime + Math.min(now - previous, 80), duration);
+      previous = now;
+      const time = elapsedTime;
       if (time - lastUpdate >= 32 || time === duration) {
         lastUpdate = time;
-        const transition = Math.max(0, Math.min(1, (time - 5500) / 4000));
-        const eased = transition * transition * (3 - 2 * transition);
-        const surface = Math.round(255 - eased * 247);
-        const ink = Math.round(24 + eased * 213);
-        root.style.setProperty(
-          "--build-surface",
-          `rgb(${surface} ${surface} ${surface})`,
-        );
-        root.style.setProperty("--build-ink", `rgb(${ink} ${ink} ${ink})`);
+        while (
+          completed + 1 < commands.length &&
+          time >= commands[completed + 1].at + commands[completed + 1].time
+        ) {
+          const command = commands[++completed];
+          if (command.surface !== undefined) {
+            const surface = command.surface;
+            const ink = surface > 100 ? 24 : 237;
+            root.style.setProperty(
+              "--build-surface",
+              `rgb(${surface} ${surface} ${surface})`,
+            );
+            root.style.setProperty("--build-ink", `rgb(${ink} ${ink} ${ink})`);
+          }
+          for (const [element, step] of items) {
+            if (step === completed) reveal(element);
+          }
+        }
         setElapsed(time);
       }
       if (time < duration) frame = requestAnimationFrame(tick);
       else {
-        root.removeAttribute("data-building");
-        root.style.removeProperty("--build-surface");
-        root.style.removeProperty("--build-ink");
+        observer.disconnect();
+        clear();
         setFinished(true);
       }
     };
     frame = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(frame);
-      root.removeAttribute("data-building");
-      root.style.removeProperty("--build-surface");
-      root.style.removeProperty("--build-ink");
+      observer.disconnect();
+      clear();
     };
   }, []);
 
@@ -99,7 +98,7 @@ export default function BuildIntro() {
   const visible = commands.filter((command) => elapsed >= command.at).slice(-3);
   return (
     <aside
-      className={`build-terminal ${elapsed >= 500 ? "visible" : ""} ${elapsed >= 14550 ? "leaving" : ""}`}
+      className={`build-terminal ${elapsed >= 500 ? "visible" : ""} ${elapsed >= duration - 450 ? "leaving" : ""}`}
       aria-label="Создание страницы"
       aria-hidden="true"
     >
